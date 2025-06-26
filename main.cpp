@@ -1,117 +1,25 @@
-#include <SDL3/SDL.h> // SDL3 ‚ÌƒƒCƒ“ƒwƒbƒ_[
-#include <SDL3_image/SDL_image.h> // SDL_image ‚Ìƒwƒbƒ_[
-#include <string> // std::string ‚ğg—p‚·‚é‚½‚ß
-#include <chrono> // ‚¸“x‚ÈŠÔŒv‘ª‚Ì‚½‚ß (SDL_Delay ‚Ì‘ã‚í‚è)
+ï»¿#define SDL_MAIN_HANDLED
 
-// ƒEƒBƒ“ƒhƒE‚Ì’è”
-const int WINDOW_W = 640; // ƒEƒBƒ“ƒhƒE‚Ì•
-const int WINDOW_H = 480; // ƒEƒBƒ“ƒhƒE‚Ì‚‚³
-const std::string WINDOW_TITLE = "Grid Shift - Test"; // ƒEƒBƒ“ƒhƒE‚Ìƒ^ƒCƒgƒ‹
-const int FPS = 60; // –Ú•WƒtƒŒ[ƒ€ƒŒ[ƒg
-const Uint64 FRAME_DELAY_TICKS = SDL_GetPerformanceFrequency() / FPS; // 1ƒtƒŒ[ƒ€‚ ‚½‚è‚ÌÅ¬ƒeƒBƒbƒN”
+#include "Game.h"
+#include<Windows.h>
+#include <SDL3/SDL.h>
+#include <SDL3\SDL_main.h>
 
-int main(int argc, char* argv[])
-{
-    SDL_Window* window = nullptr; // ƒEƒBƒ“ƒhƒE‚Ìƒ|ƒCƒ“ƒ^
-    SDL_Renderer* renderer = nullptr; // ƒŒƒ“ƒ_ƒ‰[‚Ìƒ|ƒCƒ“ƒ^
-    bool isRunning = true; // ƒQ[ƒ€ƒ‹[ƒv‚Ìƒtƒ‰ƒO
+int main(int argc, char* argv[]) {
+	SetConsoleOutputCP(CP_UTF8); // ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’UTF-8ã«è¨­å®š
+	SDL_SetMainReady();
 
-    // SDL ‚Ì‰Šú‰»
-    // ƒrƒfƒIƒTƒuƒVƒXƒeƒ€‚Ì‚İ‚ğ‰Šú‰»‚µ‚Ü‚·B
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        // SDL_GetError() ‚ÅÚ×‚ÈƒGƒ‰[ƒƒbƒZ[ƒW‚ğæ“¾
-        SDL_Log("SDL ‚Ì‰Šú‰»‚É¸”s‚µ‚Ü‚µ‚½: %s", SDL_GetError());
-        return 1; // ‰Šú‰»¸”s‚Í1‚ğ•Ô‚·
-    }
+	Game game; // Gameã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆä½œæˆ
 
-    // ƒEƒBƒ“ƒhƒE‚ÆƒŒƒ“ƒ_ƒ‰[‚Ì“¯ì¬
-    if (SDL_CreateWindowAndRenderer(WINDOW_TITLE.c_str(), WINDOW_W, WINDOW_H, 0, &window, &renderer) < 0) {
-        SDL_Log("ƒEƒBƒ“ƒhƒE‚ÆƒŒƒ“ƒ_ƒ‰[‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½: %s", SDL_GetError());
-        SDL_Quit(); // SDL ‚ğI—¹
-        return 1;
-    }
+	// ã‚²ãƒ¼ãƒ ã‚’åˆæœŸåŒ–
+	if (!game.Init())
+	{
+		return 1; // åˆæœŸåŒ–å¤±æ•—
+	}
 
-    // Ä“xƒ`ƒFƒbƒN
-    if (!renderer) {
-        SDL_Log("ƒŒƒ“ƒ_ƒ‰[‚Ìæ“¾‚É¸”s‚µ‚Ü‚µ‚½: %s", SDL_GetError());
-        SDL_DestroyWindow(window); // ƒEƒBƒ“ƒhƒE‚ğŠJ•ú
-        SDL_Quit(); // SDL ‚ğI—¹
-        return 1;
-    }
+	game.Run(); // ã‚²ãƒ¼ãƒ ãƒ«ãƒ¼ãƒ—é–‹å§‹
 
-    // ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
-    SDL_Texture* playerTexture = IMG_LoadTexture(renderer, "Image/player.png"); // ƒvƒŒƒCƒ„[‚ÌƒeƒNƒXƒ`ƒƒ‚ğ“Ç‚İ‚Ş
-    if (!playerTexture) {
-        SDL_Log("‰æ‘œ‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½: %s", SDL_GetError());
-        SDL_DestroyRenderer(renderer); // ƒŒƒ“ƒ_ƒ‰[‚ğŠJ•ú
-        SDL_DestroyWindow(window); // ƒEƒBƒ“ƒhƒE‚ğŠJ•ú
-        SDL_Quit(); // SDL ‚ğI—¹
-        return 1; // ƒGƒ‰[‚Í1‚ğ•Ô‚·
-    }
+	game.Clean(); // ã‚²ãƒ¼ãƒ çµ‚äº†æ™‚ã®ã‚¯ãƒªãƒ¼ãƒ³ã‚¢ãƒƒãƒ—
 
-    SDL_Event ev; // ƒCƒxƒ“ƒg—p‚Ì•Ï”
-    Uint64 frameStartTime = 0; // ƒtƒŒ[ƒ€ŠJn (ƒpƒtƒH[ƒ}ƒ“ƒXƒJƒEƒ“ƒ^[ƒeƒBƒbƒN)
-    Uint64 frameEndTime = 0; // ƒtƒŒ[ƒ€I—¹ (ƒpƒtƒH[ƒ}ƒ“ƒXƒJƒEƒ“ƒ^[ƒeƒBƒbƒN)
-    Uint64 frameDuration = 0; // ƒtƒŒ[ƒ€‚É‚©‚©‚Á‚½ŠÔ (ƒeƒBƒbƒN)
-
-    // ƒƒCƒ“ƒ‹[ƒv
-    while (isRunning)
-    {
-        frameStartTime = SDL_GetPerformanceCounter(); // ƒtƒŒ[ƒ€ŠJnŠÔ‚ğæ“¾
-
-        // ƒVƒXƒeƒ€ƒCƒxƒ“ƒg‚Ìˆ—
-        while (SDL_PollEvent(&ev))
-        {
-            // ƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚é
-            if (ev.type == SDL_EVENT_QUIT)
-                isRunning = false; // ƒ‹[ƒv‚ğI—¹
-
-            // ƒL[ƒ{[ƒh“ü—Í‚È‚Ç‚ÌƒCƒxƒ“ƒgˆ—‚ğ’Ç‰Á
-            if (ev.type == SDL_EVENT_KEY_DOWN) {
-                // —á: EscƒL[‚ÅI—¹
-                if (ev.key.key == SDLK_ESCAPE) {
-                    isRunning = false;
-                }
-            }
-        }
-
-        // ƒQ[ƒ€ƒƒWƒbƒN‚ÌXV (‚±‚±‚ÉƒQ[ƒ€‚Ìó‘Ô•ÏXˆ—‚ğ‹Lq)
-
-        // •`‰æˆ—
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // ”wŒiF‚ğ•‚Éİ’è (RGBA)
-        SDL_RenderClear(renderer); // ‰æ–Ê‚ğƒNƒŠƒA
-
-        // lŠp‚Ì•`‰æ (SDL_FRect ‚ğ’¼Úg—p)
-        SDL_FRect rect = { (float)WINDOW_W / 2 - 50, (float)WINDOW_H / 2 - 50, 100.0f, 100.0f };
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Ô‚Éİ’è (RGBA)
-        SDL_RenderFillRect(renderer, &rect); // lŠpŒ`‚ğ“h‚è‚Â‚Ô‚µ‚Ä•`‰æ (SDL3‚Å‚Í’P”Œ`‚Å‚àOK)
-
-        // ƒvƒŒƒCƒ„[‚ÌƒeƒNƒXƒ`ƒƒ•`‰æ
-        // SDL_FRect ‚Í•‚“®¬”“_”‚Å’¼Ú‰Šú‰»‚Å‚«‚Ü‚·B
-        SDL_FRect destRect = { (float)WINDOW_W / 2 - 16, (float)WINDOW_H / 2 - 16, 32.0f, 32.0f }; // •`‰æˆÊ’u‚ÆƒTƒCƒY
-        SDL_RenderTexture(renderer, playerTexture, NULL, &destRect);
-
-        SDL_RenderPresent(renderer); // •`‰æ“à—e‚ğ‰æ–Ê‚É•\¦
-
-        // ƒtƒŒ[ƒ€ƒŒ[ƒg§Œä
-        frameEndTime = SDL_GetPerformanceCounter(); // ƒtƒŒ[ƒ€I—¹ŠÔ‚ğæ“¾
-        frameDuration = frameEndTime - frameStartTime; // 1ƒtƒŒ[ƒ€‚É‚©‚©‚Á‚½ƒeƒBƒbƒN”
-
-        // –Ú•WƒeƒBƒbƒN”‚æ‚è‚à’Z‚©‚Á‚½ê‡Ac‚è‚ÌŠÔ‘Ò‹@
-        if (frameDuration < FRAME_DELAY_TICKS) {
-            Uint64 delayMs = (Uint64)((double)(FRAME_DELAY_TICKS - frameDuration) * 1000.0 / SDL_GetPerformanceFrequency());
-            if (delayMs > 0) { // •‰‚Ì’l‚É‚È‚ç‚È‚¢‚æ‚¤‚Éƒ`ƒFƒbƒN
-                SDL_Delay(delayMs);
-            }
-        }
-    }
-
-    // ƒ‹[ƒvI—¹ASDL ŠÖ˜A‚Ì‚à‚Ì‚ğŠJ•ú
-    SDL_DestroyTexture(playerTexture); // ƒvƒŒƒCƒ„[‚ÌƒeƒNƒXƒ`ƒƒ‚ÌŠJ•ú
-    SDL_DestroyRenderer(renderer); // ƒŒƒ“ƒ_ƒ‰[‚ÌŠJ•ú
-    SDL_DestroyWindow(window); // ƒEƒBƒ“ƒhƒE‚ÌŠJ•ú
-    SDL_Quit(); // SDL ‚ÌI—¹ˆ—
-
-    return 0; // ƒvƒƒOƒ‰ƒ€‚ğ³íI—¹
+	return 0;
 }
