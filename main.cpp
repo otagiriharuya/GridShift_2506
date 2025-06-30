@@ -1,6 +1,4 @@
-﻿#define SDL_MAIN_HANDLED
-
-#include "Game.h"
+﻿#include "Game.h"
 #include<Windows.h>
 #include <SDL3/SDL.h>
 #include <SDL3\SDL_main.h>

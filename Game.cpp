@@ -1,5 +1,4 @@
-﻿#define SDL_MAIN_HANDLED
-#include "Game.h"
+﻿#include "Game.h"
 #include "Player.h"
 #include "TextureManager.h"
 #include "Camera.h"
@@ -13,7 +12,8 @@
 Game::Game()
 	: window_(nullptr), renderer_(nullptr), isRunning_(false),
 	player_(nullptr), textureManager_(nullptr),camera_(nullptr),map_(nullptr),
-	frameStartTime_(0),frameEndTime_(0), frameDuration_(0),frameDelayTicks_(0){ }
+	frameStartTime_(0),frameEndTime_(0), frameDuration_(0),frameDelayTicks_(0),
+    deltaTime(60){ }
 
 // デストラクタ
 Game::~Game() {
