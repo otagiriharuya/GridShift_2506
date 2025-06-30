@@ -1,4 +1,5 @@
-﻿#include "Game.h"
+﻿#define SDL_MAIN_HANDLED
+#include "Game.h"
 #include "Player.h"
 #include "TextureManager.h"
 #include "Camera.h"
@@ -21,8 +22,6 @@ Game::~Game() {
 
 // ゲームの初期化処理
 bool Game::Init() {
-    // SDL の初期化
-    SDL_SetMainReady();
     // ビデオサブシステムのみを初期化します。
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {

@@ -12,6 +12,9 @@ class TextureManager;
 class Camera;
 class Map;
 
+constexpr int TILE_W = 32;
+constexpr int TILE_H = 32;
+
 class Game {
 public:
 	Game(); // コンストラクタ

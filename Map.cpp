@@ -1,9 +1,30 @@
-﻿#include "Map.h"
+﻿#include "Game.h"
+#include "Map.h"
 #include "TextureManager.h"
 #include "Camera.h"
 #include <fstream> // ファイル読み込み用
 #include <sstream> // 文字列ストリーム用
 #include <SDL3/SDL_log.h>
+
+// グリッド座標からスクリーンピクセル座標への変換
+SDL_FRect Map::GridToScreenRect(int gridX, int gridY) const {
+	// カメラは考慮しない純粋なマップ座標での変換
+	return { (float)gridX * TILE_W, (float)gridY * TILE_H, (float)TILE_W, (float)TILE_H};
+}
+
+// スクリーンピクセル座標からグリッド座標への変換
+SDL_Point Map::ScreenToGrid(float screenX, float screenY) const {
+	// SDL_Point は int 型なので、フロートは切り捨て
+	return { (int)(screenX / TILE_W), (int)(screenY / TILE_H) };
+}
+
+// 特定のグリッド位置のタイルIDを取得
+int Map::GetTileID(int gridX, int gridY) const {
+	if (gridX >= 0 && gridX < mapCols_ && gridY >= 0 && gridY < mapRows_) {
+		return tileData_[gridY][gridX];
+	}
+	return -1; // 範囲外の場合は-1など、無効なIDを返す
+}
 
 // コンストラクタ
 Map::Map(SDL_Renderer* renderer, TextureManager* textureManager)
@@ -108,17 +129,18 @@ void Map::Render(SDL_Renderer* renderer, Camera* camera) {
 					// 描画処理
 					if (tileTexture) {
 						// テクスチャがロードされている場合、タイルのデータを入れる
-						SDL_FRect destRect = {
-							(float)x * tileW_ - camera->GetX(), // カメラオフセットを適用
-							(float)y * tileH_ - camera->GetY(), // カメラオフセットを適用
-							(float)tileW_, // タイルの幅
-							(float)tileH_ // タイルの高さ
-						};
+						// グリッド座標から描画位置の計算
+						SDL_FRect destRect = GridToScreenRect(x, y);
+
+						// カメラのオフセットを適用
+						destRect.x -= camera->GetX();
+						destRect.y -= camera->GetY();
+
 						SDL_RenderTexture(renderer, tileTexture, NULL, &destRect); // テクスチャを描画
 					}
 					else {
 						// テクスチャがロードされていない場合
-						SDL_Log("Title ID: %d Texture not loaded ", tileID);
+						SDL_Log("Title ID: %d (%s) Texture not loaded ", tileID,it->second.c_str());
 					}
 				}
 				else {

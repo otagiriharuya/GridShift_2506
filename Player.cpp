@@ -4,12 +4,14 @@
 #include <algorithm> // std::min, std::maxを使用するために必要
 
 // コンストラクタ
-Player::Player(SDL_Texture* texture, float x, float y, float w, float h, float mapW, float mapH)
-	: texture_(texture), speed_(200.0f), // プレイヤーのステータス初期化
-    isMoveUp_(false),isMoveDown_(false),isMoveLeft_(false), isMoveRight_(false), // 移動フラグ初期化
-	mapW_(mapW), mapH_(mapH) // マップの幅と高さを設定
+Player::Player(SDL_Texture* texture, int startX ,int startY,int w, int h,int mapWP, int mapHP)
+	: texture_(texture),
+    destRect_({(float)startX, (float)startY , (float)w,(float)h}),
+    speed_(100.0f),
+    mapWP_(mapWP),mapHP_(mapHP),
+    isMoveUp_(false),isMoveDown_(false),isMoveLeft_(false),isMoveRight_(false)
 {
-	destRect_ = { x,y,w,h };
+
 }
 
 // デストラクタ
@@ -81,8 +83,12 @@ void Player::Update(float deltaTime) {
     destRect_.y += currentMoveY * speed_ * deltaTime; // Y方向の移動
 
     // マップ境界で停止処理
-    destRect_.x = std::max(0.0f, std::min(destRect_.x, mapW_ - destRect_.w));
-    destRect_.y = std::max(0.0f, std::min(destRect_.y, mapH_ - destRect_.h));
+    destRect_.x = std::max(0.0f, destRect_.x);
+    destRect_.x = std::min((float)mapWP_ - destRect_.w, destRect_.x);
+
+    destRect_.y = std::max(0.0f, destRect_.y);
+    destRect_.y = std::min((float)mapHP_ - destRect_.h, destRect_.y);
+    
 
 }
 
