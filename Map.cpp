@@ -151,3 +151,13 @@ void Map::Render(SDL_Renderer* renderer, Camera* camera) {
 		}
 	}
 }
+
+// 特定のグリッド位置のタイルIDを設定
+void Map::SetTileID(int gridY, int gridX, int newID) {
+	if (gridX >= 0 && gridX < mapCols_ && gridY >= 0 && gridY < mapRows_) {
+		tileData_[gridY][gridX] = newID;
+	}
+	else {
+		SDL_Log("Error: Attempted to set tile ID out of bounds at grid(%d, %d)", gridX, gridY);
+	}
+}

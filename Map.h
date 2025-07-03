@@ -33,7 +33,10 @@ public:
     SDL_Point ScreenToGrid(float screenX, float screenY) const;  
 
     // 特定のグリッド位置のタイルIDを取得  
-    int GetTileID(int gridX, int gridY) const;  
+    int GetTileID(int gridX, int gridY) const; 
+
+    // 特定のグリッド位置のタイルIDを設定
+    void SetTileID(int gridY, int gridX, int newID);
 
 private:  
     SDL_Renderer* renderer_;  

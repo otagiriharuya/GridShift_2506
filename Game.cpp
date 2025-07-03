@@ -3,6 +3,7 @@
 #include "TextureManager.h"
 #include "Camera.h"
 #include "Map.h"
+#include "Block.h"
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -51,8 +52,36 @@ bool Game::Init() {
 		return false; // マップの読み込みに失敗した場合はfalseを返す
     }
 
+    // ブロックの初期化
+    for (int y = 0; y < map_->GetMapRows(); ++y) {
+        for (int x = 0; x < map_->GetMapCols(); ++x) {
+            // マップデータ内でブロックを表す特定のタイルIDをチェック
+            if (map_->GetTileID(x, y) == TILE_ID_BLOCK_INITIAL) {
+                // ブロックを生成し、blocks_リストに追加
+                // "Image/box.png"は使用するブロック画像のパスに置き換える
+                blocks_.push_back(std::make_unique<Block>(x, y, textureManager_, "Image/box.png"));
+
+                // ブロック生成したマップ上の位置は、床タイルに戻す
+                map_->SetTileID(y, x, TILE_ID_FLOOR);
+                SDL_Log("Block initialized at grid(%d, %d)", x, y);
+            }
+        }
+    }
+
+    // 現在のウィンドウサイズ
+    int currentWindowW, currentWindowH;
+    SDL_GetWindowSize(window_, &currentWindowW, &currentWindowH);
+
     // プレイヤーの初期化
-    player_ = new Player(textureManager_->LoadTexture("Image/player.png"), WINDOW_W / 2 - 16, WINDOW_H / 2 - 16, 32, 32, map_->GetMapW(), map_->GetMapH());
+    // プレイヤーの初期位置を現在のウィンドウサイズに基づき設定
+    int playerInitX = currentWindowW / 2 - (32 / 2); // 32はプレイヤーの幅
+    int plyaerInitY = currentWindowH / 2 - (32 / 2); // 32はプレイヤーの高さ
+
+    // マップの(1,1)グリッドにプレイヤーを配置する
+    int playerStartGridX = 1;
+    int playerStartGridY = 1;
+
+    player_ = new Player(textureManager_->LoadTexture("Image/player.png"), playerStartGridX, playerStartGridY, 32, 32, map_->GetMapW(), map_->GetMapH(), map_);
     if (!player_) {
         SDL_Log("Failed to generation Image");
         return false;
@@ -123,7 +152,7 @@ void Game::Update() {
         SDL_Delay((Uint32)(MS_PER_FRAME - frameDuration));
     }
 
-    player_->Update(deltaTime); // プレイヤークラスに更新を委託
+    player_->Update(deltaTime, &blocks_); // プレイヤークラスに更新を委託
     camera_->Update(player_->GetX(), player_->GetY(), player_->GetWidth(), player_->GetHeight()); // カメラの更新
 }
 
@@ -134,6 +163,10 @@ void Game::Render() {
 
 	map_->Render(renderer_, camera_); // マップの描画を委託
 
+    for (const auto& block : blocks_) {
+        block->Render(renderer_, camera_);
+    }
+
     player_->Render(renderer_, camera_); // プレイヤークラスに描画を委託
 
 	SDL_RenderPresent(renderer_); // レンダラーの内容を画面に表示
@@ -141,6 +174,9 @@ void Game::Render() {
 
 // ゲームのクリーンアップ処理
 void Game::Clean() {
+
+    blocks_.clear(); // リストをクリアすることで、各unique_ptrのデストラクトが呼ばれる
+
 	delete player_; // player_オブジェクトの削除
     player_ = nullptr;
 
