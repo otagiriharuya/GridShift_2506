@@ -13,7 +13,6 @@ Player::Player(SDL_Texture* texture, int startGridX, int startGridY, int w, int 
     speed_(TILE_W * 4.0f), // 1秒で4マス移動する速度
     mapWP_(mapWP), mapHP_(mapHP), // マップのピクセル初期化
     map_(map),
-    isMoveUp_(false),isMoveDown_(false),isMoveLeft_(false),isMoveRight_(false),
     nextMoveDx_(0),nextMoveDy_(0), // 次の移動方向バッファを初期化
     isGridMoving_(false),moveProgress_(0.0f)
 {
@@ -26,42 +25,6 @@ Player::Player(SDL_Texture* texture, int startGridX, int startGridY, int w, int 
 // デストラクタ
 Player::~Player() {}
 
-// イベント処理
-void Player::HandleInput(const SDL_Event& ev) {
-	if (ev.type == SDL_EVENT_KEY_DOWN) { // キーが押されたら
-        // 上移動
-        if (ev.key.key == SDLK_UP || ev.key.scancode == SDL_SCANCODE_W) {
-            isMoveUp_ = true;
-        }
-        // 下移動
-        if (ev.key.key == SDLK_DOWN || ev.key.scancode == SDL_SCANCODE_S) {
-            isMoveDown_ = true;
-        }
-        // 左移動
-        if (ev.key.key == SDLK_LEFT || ev.key.scancode == SDL_SCANCODE_A) {
-            isMoveLeft_ = true;
-        }
-        // 右移動
-        if (ev.key.key == SDLK_RIGHT || ev.key.scancode == SDL_SCANCODE_D) {
-            isMoveRight_ = true;
-        }
-	}
-    else if (ev.type == SDL_EVENT_KEY_UP) { // キーが離されたら
-        if ((ev.key.key == SDLK_UP || ev.key.scancode == SDL_SCANCODE_W)) {
-            isMoveUp_ = false;
-        }
-        if ((ev.key.key == SDLK_DOWN || ev.key.scancode == SDL_SCANCODE_S)) {
-            isMoveDown_ = false;
-        }
-        if ((ev.key.key == SDLK_LEFT || ev.key.scancode == SDL_SCANCODE_A)) {
-            isMoveLeft_ = false;
-        }
-        if ((ev.key.key == SDLK_RIGHT || ev.key.scancode == SDL_SCANCODE_D)) {
-            isMoveRight_ = false;
-        }
-    }
-}
-
 bool Player::TryStartMove(int dx, int dy, std::vector<std::unique_ptr<Block>>* blocks) {
     // 移動方向が指定されていなければ何もしない
     if (dx == 0 && dy == 0) return false;
@@ -72,7 +35,7 @@ bool Player::TryStartMove(int dx, int dy, std::vector<std::unique_ptr<Block>>* b
     // マップ境界チェック
     if (nextGridX < 0 || nextGridX >= map_->GetMapCols() ||
         nextGridY < 0 || nextGridY >= map_->GetMapRows()) {
-        SDL_Log("Player not Move");
+        //SDL_Log("Player not Move");
         return false;
     }
 
@@ -95,14 +58,14 @@ bool Player::TryStartMove(int dx, int dy, std::vector<std::unique_ptr<Block>>* b
         // ブロックの移動先がマップ境界内かチェック
         if (blockNewGridX < 0 || blockNewGridX >= map_->GetMapCols() ||
             blockNewGridY < 0 || blockNewGridY >= map_->GetMapRows()) {
-            SDL_Log("Block not out push");
+            //SDL_Log("Block not out push");
             return false;
         }
 
         // ブロックの移動先タイルが壁かチェック
         int blockNewTileID = map_->GetTileID(blockNewGridX, blockNewGridY);
         if (blockNewTileID == TILE_ID_WALL) {
-            SDL_Log("not push");
+            //SDL_Log("not push");
             return false;
         }
 
@@ -147,7 +110,7 @@ bool Player::TryStartMove(int dx, int dy, std::vector<std::unique_ptr<Block>>* b
 }
 
 // プレイヤーの更新処理
-void Player::Update(float deltaTime, std::vector<std::unique_ptr<Block>>* blocks) {
+void Player::Update(float deltaTime, const Uint8* keyboardState, std::vector<std::unique_ptr<Block>>* blocks) {
     if (isGridMoving_) {
         // グリッド移動中の処理
         float moveAmountThisFrame = speed_ * deltaTime;
@@ -164,51 +127,35 @@ void Player::Update(float deltaTime, std::vector<std::unique_ptr<Block>>* blocks
             startGridPos_ = targetGridPos_;
 
             // 移動完了後、すぐに次の移動を試みる
-            // 現在押されているキーを優先して次の移動方向を決定
+            // keyboardStateを使って建材のキーの状態を直接確認
             int dx_attempt = 0;
             int dy_attempt = 0;
 
-            if (isMoveUp_) dy_attempt = -1;
-            else if (isMoveDown_) dy_attempt = 1;
-            else if (isMoveLeft_) dx_attempt = -1;
-            else if (isMoveRight_) dx_attempt = 1;
+            if (keyboardState[SDL_SCANCODE_W]) dy_attempt = -1;
+            else if (keyboardState[SDL_SCANCODE_S]) dy_attempt = 1;
+            else if (keyboardState[SDL_SCANCODE_A]) dx_attempt = -1;
+            else if (keyboardState[SDL_SCANCODE_D]) dx_attempt = 1;
 
-            if (dx_attempt != 0 || dy_attempt != 0) { // 何らかの方向キーが押されている場合のみ試行
-                if (!TryStartMove(dx_attempt, dy_attempt, blocks)) {
-                    // 次の移動を開始できなかった場合（壁など）
-                    // その方向のキーがまだ押されていれば、そのキーのisMoving_フラグをリセットして停止させる
-                    // これにより、壁にぶつかったときに停止し、別の方向キーを押し始めればすぐにそちらに移動できる。
-                    // 長押しで壁にぶつかった際に、その方向の入力がキャンセルされる。
-                    if (dx_attempt == -1) isMoveLeft_ = false;
-                    if (dx_attempt == 1)  isMoveRight_ = false;
-                    if (dy_attempt == -1) isMoveUp_ = false;
-                    if (dy_attempt == 1)  isMoveDown_ = false;
-                }
+            // 何らかの方向キーが押されている場合のみ試行
+            if (dx_attempt != 0 || dy_attempt != 0) {
+                TryStartMove(dx_attempt, dy_attempt, blocks);
             }
-            // else: キーが何も押されていなければ、そのまま停止する（isGridMoving_はfalseのまま）
-
         }
     }
     else {
         // グリッド移動中でない場合 (停止中)
-        int dx_attempt = 0;
-        int dy_attempt = 0;
+        int dx_current = 0;
+        int dy_current = 0;
 
-        // 現在押されているキーを優先して移動方向を決定
-        if (isMoveUp_) dy_attempt = -1;
-        else if (isMoveDown_) dy_attempt = 1;
-        else if (isMoveLeft_) dx_attempt = -1;
-        else if (isMoveRight_) dx_attempt = 1;
+        // keyboardStateを使って現在のキーの状態を直接確認
+        if (keyboardState[SDL_SCANCODE_W]) dy_current = -1;
+        else if (keyboardState[SDL_SCANCODE_S]) dy_current = 1;
+        else if (keyboardState[SDL_SCANCODE_A]) dx_current = -1;
+        else if (keyboardState[SDL_SCANCODE_D]) dx_current = 1;
 
-        if (dx_attempt != 0 || dy_attempt != 0) { // 何らかのキーが押されている場合
-            if (!TryStartMove(dx_attempt, dy_attempt, blocks)) {
-                // 移動を開始できなかった場合（壁など）
-                // その方向のキーがまだ押されていれば、そのキーのisMoving_フラグをリセットして停止させる
-                if (dx_attempt == -1) isMoveLeft_ = false;
-                if (dx_attempt == 1)  isMoveRight_ = false;
-                if (dy_attempt == -1) isMoveUp_ = false;
-                if (dy_attempt == 1)  isMoveDown_ = false;
-            }
+        // 何らかのキーが押されている場合
+        if (dx_current != 0 || dy_current != 0) {
+            TryStartMove(dx_current, dy_current, blocks);
         }
     }
 

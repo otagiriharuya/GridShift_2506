@@ -52,7 +52,7 @@ void Map::SetTileProperties(int tileW, int tileH) {
 bool Map::LoadMap(const std::string& filePath) {
 	std::ifstream file(filePath); // ファイルを開く
 	if (!file.is_open()) {
-		SDL_Log("Could not open Map file: %s", filePath.c_str());
+		//SDL_Log("Could not open Map file: %s", filePath.c_str());
 		return false; // ファイルが開けなかった場合はfalseを返す
 	}
 
@@ -93,11 +93,11 @@ bool Map::LoadMap(const std::string& filePath) {
 	SetTileProperties(tileW_, tileH_); // マップサイズを設定
 
 	if (mapRows_ == 0 || mapCols_ == 0) {
-		SDL_Log("Map data is empty or invalid: %s", filePath.c_str());
+		//SDL_Log("Map data is empty or invalid: %s", filePath.c_str());
 		return false; // マップの行数または列数が0の場合はfalseを返す
 	}
 
-	SDL_Log("Map '%s' loaded. Size: %d rows x %d columns, title size: %d x %d, ピクセルサイズ: %.0f x %.0f",
+	//SDL_Log("Map '%s' loaded. Size: %d rows x %d columns, title size: %d x %d, ピクセルサイズ: %.0f x %.0f",
 		filePath.c_str(), mapRows_, mapCols_, tileW_, tileH_, mapW_, mapH_);
 	return true; // マップの読み込みに成功した場合はtrueを返す
 }
@@ -140,12 +140,12 @@ void Map::Render(SDL_Renderer* renderer, Camera* camera) {
 					}
 					else {
 						// テクスチャがロードされていない場合
-						SDL_Log("Title ID: %d (%s) Texture not loaded ", tileID,it->second.c_str());
+						//SDL_Log("Title ID: %d (%s) Texture not loaded ", tileID,it->second.c_str());
 					}
 				}
 				else {
 					// 道のタイトルIDをスキップ
-					SDL_Log("unknown tile ID: %d at (%d, %d)", tileID, x, y);
+					//SDL_Log("unknown tile ID: %d at (%d, %d)", tileID, x, y);
 				}
 			}
 		}

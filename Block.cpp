@@ -8,7 +8,7 @@ Block::Block(int gridX, int gridY, TextureManager* textureManager, const std::st
 	// TextureManagerからテクスチャ取得
 	texture_ = textureManager->GetTexture(texturePath);
 	if (!texture_) {
-		SDL_Log("Block: Failed to get texture for path: %s", texturePath.c_str());
+		//SDL_Log("Block: Failed to get texture for path: %s", texturePath.c_str());
 	}
 
 	// グリッド座標とTILE_WIDTH/HEIGHTから初期ピクセル座標とサイズを計算

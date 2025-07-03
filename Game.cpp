@@ -11,193 +11,135 @@
 
 // コンストラクタでの初期化を最小限に
 Game::Game()
-	: window_(nullptr), renderer_(nullptr), isRunning_(false),
-	player_(nullptr), textureManager_(nullptr),camera_(nullptr),map_(nullptr),
-	frameStartTime_(0),frameEndTime_(0), frameDuration_(0),frameDelayTicks_(0),
-    deltaTime(60){ }
+	: window_(nullptr), renderer_(nullptr), 
+    keyboardState_(nullptr),numKeys_(0),
+    isRunning_(true),lastTick_(0){ }
 
 // デストラクタ
 Game::~Game() {
-    Clean();
+    
 }
 
 // ゲームの初期化処理
-bool Game::Init() {
-    // ビデオサブシステムのみを初期化します。
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        // SDL_GetError() で詳細なエラーメッセージを取得
-        SDL_Log("SDL initialization failed: %s", SDL_GetError());
-        return false; // 初期化失敗時
-    }
-
-    // ウィンドウとレンダラーの同時作成
-    if (SDL_CreateWindowAndRenderer(WINDOW_TITLE.c_str(), WINDOW_W, WINDOW_H, SDL_WINDOW_RESIZABLE | SDL_RENDERER_VSYNC_DISABLED, &window_, &renderer_) < 0) {
-        SDL_Log("Window and renderer creation failed: %s", SDL_GetError());
-        SDL_Quit(); // SDL を終了
+bool Game::Initialize() {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        //SDL_Log("SDLを初期化できませんでした。: %s", SDL_GetError());
         return false;
     }
 
-    // オブジェクトの生成
-	textureManager_ = new TextureManager(renderer_); // レンダラーを渡す
-    if (!textureManager_) {
-		SDL_Log("TextureManager creatfailed");
+    window_ = SDL_CreateWindow("Grid Shift", 800, 600, SDL_WINDOW_RESIZABLE);
+    if (!window_) {
+        SDL_Log("ウィンドウを作成できませんでした: %s", SDL_GetError());
         return false;
     }
 
-	// マップの初期化
-    map_ = new Map(renderer_, textureManager_);
-    if (!map_->LoadMap("Map/map01.csv")) {
-        SDL_Log("Failed to generation map: %s", "Map/map01.csv");
-		return false; // マップの読み込みに失敗した場合はfalseを返す
-    }
-
-    // ブロックの初期化
-    for (int y = 0; y < map_->GetMapRows(); ++y) {
-        for (int x = 0; x < map_->GetMapCols(); ++x) {
-            // マップデータ内でブロックを表す特定のタイルIDをチェック
-            if (map_->GetTileID(x, y) == TILE_ID_BLOCK_INITIAL) {
-                // ブロックを生成し、blocks_リストに追加
-                // "Image/box.png"は使用するブロック画像のパスに置き換える
-                blocks_.push_back(std::make_unique<Block>(x, y, textureManager_, "Image/box.png"));
-
-                // ブロック生成したマップ上の位置は、床タイルに戻す
-                map_->SetTileID(y, x, TILE_ID_FLOOR);
-                SDL_Log("Block initialized at grid(%d, %d)", x, y);
-            }
-        }
-    }
-
-    // 現在のウィンドウサイズ
-    int currentWindowW, currentWindowH;
-    SDL_GetWindowSize(window_, &currentWindowW, &currentWindowH);
-
-    // プレイヤーの初期化
-    // プレイヤーの初期位置を現在のウィンドウサイズに基づき設定
-    int playerInitX = currentWindowW / 2 - (32 / 2); // 32はプレイヤーの幅
-    int plyaerInitY = currentWindowH / 2 - (32 / 2); // 32はプレイヤーの高さ
-
-    // マップの(1,1)グリッドにプレイヤーを配置する
-    int playerStartGridX = 1;
-    int playerStartGridY = 1;
-
-    player_ = new Player(textureManager_->LoadTexture("Image/player.png"), playerStartGridX, playerStartGridY, 32, 32, map_->GetMapW(), map_->GetMapH(), map_);
-    if (!player_) {
-        SDL_Log("Failed to generation Image");
-        return false;
-    }
-    
-    // カメラの初期化
-	camera_ = new Camera(0, 0, WINDOW_W, WINDOW_H, map_->GetMapW(), map_->GetMapH());
-    if (!camera_) {
-        SDL_Log("Failed to generation Camera:");
+    renderer_ = SDL_CreateRenderer(window_, nullptr, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer_) {
+        SDL_Log("レンダラーを作成できませんでした: %s", SDL_GetError());
         return false;
     }
 
-    // deltaTime計測のための初期設定
-    frameStartTime_ = SDL_GetPerformanceCounter(); // 初期化時に一度設定
+    textureManager_ = new TextureManager(renderer_);
+    if (!textureManager_->LoadTexture("assets/player.png", "player") ||
+        !textureManager_->LoadTexture("assets/tiles.png", "tiles") ||
+        !textureManager_->LoadTexture("assets/block.png", "block")) {
+        SDL_Log("テクスチャのロードに失敗しました。");
+        return false;
+    }
 
-    // フレームレートの制御の初期化
-    //frameDelayTicks_ = SDL_GetPerformanceFrequency() / FPS; // フレームレートに基づく遅延時間を計算
+    map_ = std::make_unique<Map>(textureManager_->GetTexture("tiles"));
+    if (!map_->LoadMap("assets/map01.csv")) {
+        SDL_Log("マップのロードに失敗しました。");
+        return false;
+    }
 
-	isRunning_ = true; // ゲームループを開始可能にする
-	return true; // 初期化成功時はtrueを返す
+    // プレイヤーの開始位置を見つける
+    int playerStartX = 0;
+    int playerStartY = 0;
+    map_->FindTile(TILE_ID_PLAYER_START, playerStartX, playerStartY);
+
+    player_ = std::make_unique<Player>(textureManager_->GetTexture("player"),
+        playerStartX, playerStartY, TILE_W, TILE_H,
+        map_->GetMapCols() * TILE_W, map_->GetMapRows() * TILE_HE,
+        map_.get());
+
+    // マップ上のブロックをロード
+    std::vector<SDL_Point> blockPositions = map_->FindAllTiles(TILE_ID_BLOCK);
+    for (const auto& pos : blockPositions) {
+        blocks_.push_back(std::make_unique<Block>(textureManager_->GetTexture("block"), pos.x, pos.y));
+    }
+
+    camera_ = std::make_unique<Camera>(0, 0, 800, 600); // 画面サイズに合わせる
+
+    // ★追加: キーボードの状態を取得するポインタを設定
+    keyboardState_ = SDL_GetKeyboardState(&numKeys_); // これをInitializeで1回呼び出す
+
+    return true;
 }
 
-// ゲームの更新処理
-void Game::Run() {
+void Game::RunLoop() {
     while (isRunning_) {
-        Events(); // イベント処理
-        Update(); // 更新処理
-        Render(); // 描画処理
+        ProcessInput();
+        UpdateGame();
+        GenerateOutput();
     }
 }
 
-// ゲームのイベント処理
-void Game::Events() {
-    SDL_Event ev;
-    while (SDL_PollEvent(&ev)) {
-        switch (ev.type) {
-        case SDL_EVENT_QUIT:
+void Game::Shutdown() {
+    delete textureManager_; // newで確保したのでdeleteする
+    SDL_DestroyRenderer(renderer_);
+    SDL_DestroyWindow(window_);
+    SDL_Quit();
+}
+
+// ★関数名をHandleEventsからProcessInputに変更
+void Game::ProcessInput() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        // SDL_Quit イベントを処理
+        if (event.type == SDL_EVENT_QUIT) {
             isRunning_ = false;
-            break;
-        case SDL_EVENT_KEY_DOWN:
-        case SDL_EVENT_KEY_UP:
-            player_->HandleInput(ev); // プレイヤークラスにイベント処理を委託
-            break;
         }
+        // 他のイベント（ウィンドウリサイズなど）があればここに追加
+
+        // ★削除: プレイヤーのHandleInputはもう呼び出さない
+        // player_->HandleInput(event);
     }
+    // ★重要: SDL_GetKeyboardState() は PollEvent/PumpEvent の後に呼び出す
+    // イベントキューを処理することで内部状態が更新されるため
+    // keyboardState_ = SDL_GetKeyboardState(&numKeys_); // Initializeで取得済みなので不要
+    // keyboardState_はフレームごとに更新不要、SDLが内部で管理する
 }
 
-// ゲームの更新処理
-void Game::Update() {
-	// 時間計測開始
-    frameEndTime_ = SDL_GetPerformanceCounter();
+void Game::UpdateGame() {
+    // deltaTime計算 (変更なし)
+    Uint64 currentTick = SDL_GetPerformanceCounter();
+    float deltaTime = static_cast<float>(currentTick - lastTick_) / SDL_GetPerformanceFrequency();
+    lastTick_ = currentTick;
 
-    // カウンタの生の値と周波数
-    Uint64 currentPerfCounter = SDL_GetPerformanceCounter();
-    Uint64 perfFreq = SDL_GetPerformanceFrequency();
+    // ゲーム全体の更新ロジック
+    // ★変更: player_->Update に keyboardState_ を渡す
+    player_->Update(deltaTime, keyboardState_, &blocks_);
 
-    // deltaTime 計算
-    deltaTime = (float)(frameEndTime_ - frameStartTime_) / perfFreq;
-    SDL_Log("deltaTime: '%.8f'", deltaTime);
-    
-    // 次のフレームのために開始時間を更新
-    frameStartTime_ = frameEndTime_;
-
-    float frameDuration = deltaTime * 1000.0f;//ミリ秒単位
-    const float MS_PER_FRAME = 1000.0f / FPS; // 
-    if (frameDuration < MS_PER_FRAME) {
-        // Delayはミリ秒単位なので、余った時間をミリ秒に変換し遅延させる
-        SDL_Delay((Uint32)(MS_PER_FRAME - frameDuration));
-    }
-
-    player_->Update(deltaTime, &blocks_); // プレイヤークラスに更新を委託
-    camera_->Update(player_->GetX(), player_->GetY(), player_->GetWidth(), player_->GetHeight()); // カメラの更新
+    // カメラの更新 (プレイヤーを追従)
+    camera_->Update(player_->GetX(), player_->GetY(), player_->GetWidth(), player_->GetHeight(),
+        map_->GetMapCols() * TILE_WIDTH, map_->GetMapRows() * TILE_HEIGHT);
 }
 
-// ゲームの描画処理
-void Game::Render() {
-	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255); // 背景色を黒に設定
-	SDL_RenderClear(renderer_); // 画面をクリア
+void Game::GenerateOutput() {
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255); // 黒でクリア
+    SDL_RenderClear(renderer_);
 
-	map_->Render(renderer_, camera_); // マップの描画を委託
+    // マップの描画
+    map_->Render(renderer_, camera_.get());
 
+    // ブロックの描画
     for (const auto& block : blocks_) {
-        block->Render(renderer_, camera_);
+        block->Render(renderer_, camera_.get());
     }
 
-    player_->Render(renderer_, camera_); // プレイヤークラスに描画を委託
+    // プレイヤーの描画
+    player_->Render(renderer_, camera_.get());
 
-	SDL_RenderPresent(renderer_); // レンダラーの内容を画面に表示
+    SDL_RenderPresent(renderer_);
 }
-
-// ゲームのクリーンアップ処理
-void Game::Clean() {
-
-    blocks_.clear(); // リストをクリアすることで、各unique_ptrのデストラクトが呼ばれる
-
-	delete player_; // player_オブジェクトの削除
-    player_ = nullptr;
-
-	delete textureManager_; // yextureManager_オブジェクトの削除
-    textureManager_ = nullptr;
-
-	delete camera_; // camera_オブジェクトの削除
-    camera_ = nullptr;
-
-	delete map_; // map_オブジェクトの削除
-    map_ = nullptr;
-
-    if (renderer_) {
-        SDL_DestroyRenderer(renderer_); // レンダラーの破棄
-		renderer_ = nullptr; // ポインタをnullptrに設定
-    }
-
-    if (window_) {
-        SDL_DestroyWindow(window_); // ウィンドウの破棄
-        window_ = nullptr; // ポインタをnullptrに設定
-    }
-	SDL_Quit(); // SDLを終了
-}
-
