@@ -38,13 +38,3 @@ void Block::SetGridPosition(int newGridX, int newGridY) {
     destRect_.x = (float)gridX_ * TILE_W;
     destRect_.y = (float)gridY_ * TILE_H;
 }
-
-// ブロックのピクセルX座標を取得
-float Block::GetX() const {
-    return destRect_.x;
-}
-
-// ブロックのピクセルY座標を取得
-float Block::GetY() const {
-    return destRect_.y;
-}

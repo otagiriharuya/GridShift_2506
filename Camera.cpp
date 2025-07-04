@@ -3,15 +3,15 @@
 #include <algorithm>
 
 // コンストラクタ
-Camera::Camera(float x, float y, int width, int height)
+Camera::Camera(float x, float y, float w, float h)
     : x_(x), // カメラのワールドX座標を初期化
     y_(y), // カメラのワールドY座標を初期化
-    width_(width), // カメラのビューポート幅を初期化
-    height_(height) // カメラのビューポート高さを初期化
+    width_(w), // カメラのビューポート幅を初期化
+    height_(h) // カメラのビューポート高さを初期化
 {}
 
 // カメラの位置を更新
-void Camera::Update(float targetX, float targetY, int targetW, int targetH, int mapW, int mapH) {
+void Camera::Update(float targetX, float targetY, float targetW, float targetH, int mapW, int mapH) {
     // 追跡対象（プレイヤー）の中心が画面の中心に来るようにカメラを調整します。
     // targetXとtargetYはターゲットの左上隅の座標なので、中心を計算します。
     x_ = targetX + (float)targetW / 2 - (float)width_ / 2;

@@ -9,13 +9,14 @@
 
 // クラスの前方宣言
 class Camera; 
+class TextureManager;
 
 // ゲームのマップデータをロード、管理、描画
 class Map {  
 public:
     // コンストラクタ
     // マップタイル描画用のテクスチャ
-    Map(TextureManager* textureManager);
+    Map(SDL_Texture* texture);
     // デストラクト
     ~Map();  
 
@@ -48,7 +49,7 @@ private:
 
     // タイルセットから個々のタイル画像を取得するためのRectを計算
     // 取得したいタイルID
-    SDL_Rect GetSourceRect(int tileID) const;
+    SDL_FRect GetSourceRect(int tileID) const;
 };
 
 #endif // MAP_H

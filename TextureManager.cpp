@@ -1,5 +1,6 @@
 ﻿#include "TextureManager.h"
 #include <SDL3/SDL_log.h>
+#include <SDL3_image/SDL_image.h>
 
 // コンストラクタ
 TextureManager::TextureManager(SDL_Renderer* renderer)
@@ -18,7 +19,7 @@ TextureManager::TextureManager(SDL_Renderer* renderer)
 
 // デストラクタ
 TextureManager::~TextureManager() {
-    Clear(); // 管理している全てのテクスチャを解放
+    ClearAllTextures(); // 管理している全てのテクスチャを解放
     IMG_Quit(); // SDL_image の終了処理
     //SDL_Log("TextureManager が破棄され、テクスチャが解放されました。");
 }
@@ -51,7 +52,7 @@ bool TextureManager::LoadTexture(const std::string& filePath, const std::string&
 }
 
 // 指定されたIDのテクスチャを取得
-SDL_Texture* TextureManager::GetTexture(const std::string& id) const {
+SDL_Texture* TextureManager::GetTexture(const std::string& id){
     auto it = textures_.find(id); // マップ内でIDを検索
     if (it != textures_.end()) {
         return it->second; // 見つかった場合、対応するテクスチャを返す
@@ -74,7 +75,7 @@ void TextureManager::UnloadTexture(const std::string& id) {
 }
 
 // 管理している全てのテクスチャを解放
-void TextureManager::Clear() {
+void TextureManager::ClearAllTextures() {
     for (auto const& [id, texture] : textures_) {
         SDL_DestroyTexture(texture); // 各SDL_Textureを解放
         //SDL_Log("テクスチャID '%s' をクリアしました。", id.c_str());

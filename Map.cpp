@@ -85,7 +85,7 @@ void Map::Render(SDL_Renderer* renderer, Camera* camera) {
             int tileID = GetTileID(x, y); // 現在のグリッドのタイルIDを取得
             if (tileID == -1) continue; // 無効なタイルIDならスキップ
 
-            SDL_Rect srcRect = GetSourceRect(tileID); // タイルIDに対応するタイルセット上のソース矩形を取得
+            SDL_FRect srcRect = GetSourceRect(tileID); // タイルIDに対応するタイルセット上のソース矩形を取得
             SDL_FRect destRect = {
                 (float)x * TILE_W - camera->GetX(), // TILE_W を使用: 画面上の描画X座標 (カメラオフセット適用)
                 (float)y * TILE_H - camera->GetY(), // TILE_H を使用: 画面上の描画Y座標 (カメラオフセット適用)
@@ -133,9 +133,9 @@ std::vector<SDL_Point> Map::FindAllTiles(int tileID) const {
 }
 
 // タイルセットから個々のタイル画像を取得するためのソース矩形を計算
-SDL_Rect Map::GetSourceRect(int tileID) const {
+SDL_FRect Map::GetSourceRect(int tileID) const {
     return {
-        tileID * TILE_W, // ソースX座標
+        (float)tileID * TILE_W, // ソースX座標
         0, // ソースY座標
         TILE_W, // ソース幅
         TILE_H // ソース高さ

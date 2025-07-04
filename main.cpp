@@ -12,11 +12,9 @@ int main(int argc, char* argv[]) {
     // 2. ウィンドウの作成
     SDL_Window* window = SDL_CreateWindow(
         "My SDL Game",      // ウィンドウのタイトル
-        SDL_WINDOWPOS_CENTERED, // X座標
-        SDL_WINDOWPOS_CENTERED, // Y座標
         800, // 幅
         600, // 高さ
-        SDL_WINDOW_SHOWN // フラグ
+        SDL_WINDOW_RESIZABLE // フラグ
     );
     if (!window) {
         // エラー処理
@@ -28,8 +26,7 @@ int main(int argc, char* argv[]) {
     // レンダラーの作成
     SDL_Renderer* renderer = SDL_CreateRenderer(
         window,
-        -1, // 任意のレンダリングドライバー
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC // ハードウェアアクセラレーションと垂直同期
+        nullptr
     );
     if (!renderer) {
         // エラー処理
@@ -44,7 +41,7 @@ int main(int argc, char* argv[]) {
     SDL_Event event;
     while (!quit) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+            if (event.type == SDL_EVENT_QUIT) {
                 quit = true; // ウィンドウが閉じられたら終了
             }
             // その他のイベント処理（キーボード入力など）
