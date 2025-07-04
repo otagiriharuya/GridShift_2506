@@ -1,64 +1,54 @@
 #pragma once  
-#ifndef MAP_H  
-#define MAP_H  
+#ifndef MAP_H
+#define MAP_H
 
-#include <vector>  
-#include <string>  
-#include <map>  
-#include <SDL3/SDL.h>  
-#include "Game.h"  
+#include <vector>
+#include <string>
+#include <map>
+#include <SDL3/SDL.h>
 
-class TextureManager;  
+// クラスの前方宣言
 class Camera; 
 
+// ゲームのマップデータをロード、管理、描画
 class Map {  
-public:  
-    Map(SDL_Renderer* renderer, TextureManager* textureManager);  
+public:
+    // コンストラクタ
+    // マップタイル描画用のテクスチャ
+    Map(TextureManager* textureManager);
+    // デストラクト
     ~Map();  
 
-    bool LoadMap(const std::string& filePath); // マップデータをファイルから読み込む  
-    void Render(SDL_Renderer* renderer, Camera* camera); // マップの描画  
+    // CSVファイルからマップデータをロード
+    bool LoadMap(const std::string& filePath);
+    // マップの描画
+    // 描画に使用するSDLレンダラー、カメラオブジェクト(描画位置にオフセットを適用するため)
+    void Render(SDL_Renderer* renderer, Camera* camera);
 
-    // マップのタイル数での幅と高さを取得  
-    int GetMapRows() const { return mapRows_; }  
-    int GetMapCols() const { return mapCols_; }  
+    // 指定されたグリッド座標のタイルIDを取得
+    int GetTileID(int x, int y) const;
+    // マップの列数を取得
+    int GetMapCols() const { return mapCols_; }
+    // マップの行数を取得
+    int GetMapRows() const { return mapRows_; }
 
-    // マップのピクセル単位での幅と高さを取得  
-    int GetMapW() const { return mapCols_ * TILE_W; }  
-    int GetMapH() const { return mapRows_ * TILE_H; }  
+    // 指定されたタイルIDを持つ最初のタイルのグリッド座標を見つける
+    // 検索するタイルID、見つけたタイルのグリッド座標を格納する
+    bool FindTile(int tileID, int& outX, int& outY) const;
 
-    // グリッド座標からスクリーンピクセル座標への変換  
-    SDL_FRect GridToScreenRect(int gridX, int gridY) const;  
-    // スクリーンピクセル座標からグリッド座標への変換  
-    SDL_Point ScreenToGrid(float screenX, float screenY) const;  
+    // 指定されたタイルIDを持つすべてのタイルのグリッド座標を見つける
+    // 検索するID、見つかったすべてのタイル座標のタイル
+    std::vector<SDL_Point> FindAllTiles(int tileID) const;
 
-    // 特定のグリッド位置のタイルIDを取得  
-    int GetTileID(int gridX, int gridY) const; 
+private:
+    SDL_Texture* tilesetTexture_; // タイルセットのテクスチャアトラス
+    std::vector<std::vector<int>> mapData_; // マップのグリッドデータ
+    int mapCols_; // マップの列数
+    int mapRows_; // マップの行数
 
-    // 特定のグリッド位置のタイルIDを設定
-    void SetTileID(int gridY, int gridX, int newID);
-
-private:  
-    SDL_Renderer* renderer_;  
-    TextureManager* textureManager_;  
-
-    float mapW_; // マップ全体の幅 (ピクセル)  
-    float mapH_; // マップ全体の高さ (ピクセル)  
-    int tileW_; // タイルの幅 (ピクセル)  
-    int tileH_; // タイルの高さ (ピクセル)  
-    int mapRows_; // マップの行数  
-    int mapCols_; // マップの列数  
-
-    // マップデータ (例: タイルIDの2次元配列)  
-    std::vector<std::vector<int>> tileData_;  
-
-    // タイルセット (タイルIDとテクスチャファイルパスのマッピング、または直接テクスチャオブジェクト)  
-    // 読み込んだテクスチャを保持するためのマップを使用  
-    std::map<int, std::string> tileTexturePaths_; // タイルIDとファイルパスのマッピング  
-    // std::map<int, SDL_Texture*> tileTextures_; // ロード済みのテクスチャを直接保持するならこれ  
-
-    // マップの初期化や設定を行うプライベートヘルパー関数  
-    void SetTileProperties(int tileW, int tileH);  
-};  
+    // タイルセットから個々のタイル画像を取得するためのRectを計算
+    // 取得したいタイルID
+    SDL_Rect GetSourceRect(int tileID) const;
+};
 
 #endif // MAP_H
