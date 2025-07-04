@@ -82,7 +82,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;SDL3_image.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;SDL3main.lib;SDL3_image.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -99,7 +99,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;SDL3_image.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;SDL3main.lib;SDL3_image.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +115,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;SDL3_image.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;SDL3main.lib;SDL3_image.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)Map\map01.csv" "$(OutDir)Map\" /Y /D</Command>
@@ -137,7 +137,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;SDL3_image.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;SDL3main.lib;SDL3_image.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)Map\map01.csv" "$(OutDir)Map\" /Y /D</Command>

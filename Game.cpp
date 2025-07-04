@@ -40,7 +40,7 @@ bool Game::Initialize() {
     }
 
     // レンダラーを作成
-    renderer_ = SDL_CreateRenderer(window_, nullptr, 0);
+    renderer_ = SDL_CreateRenderer(window_, nullptr);
     if (!renderer_) {
         SDL_Log("レンダラーを作成できませんでした: %s", SDL_GetError());
         return false;
