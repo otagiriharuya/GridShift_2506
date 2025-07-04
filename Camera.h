@@ -6,7 +6,6 @@
 #include <SDL3/SDL.h>
 #include <algorithm>
 
-// Cameraクラス
 // ゲームの視点を管理プレイヤーなどのオブジェクトを追跡し、画面表示を調整
 class Camera {
 public:
