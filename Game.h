@@ -34,7 +34,7 @@ public:
 private:
 	void ProcessInput(); // 入力処理
 	void UpdateGame(); // ゲームの更新処理
-	void GenerateOutput(); // 描画処理
+	void Render(); // 描画処理
 
 	// SDL関連のメンバー変数
 	SDL_Window* window_; // ウィンドウオブジェクト

@@ -26,8 +26,8 @@ Game::~Game() {
 // ゲームの初期化処理
 bool Game::Initialize() {
     // SDLビデオサブシステムの初期化を試みる
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        //SDL_Log("SDLを初期化できませんでした。: %s", SDL_GetError());
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+        SDL_Log("SDL:%s", SDL_GetError());
         return false;
     }
 
@@ -35,30 +35,30 @@ bool Game::Initialize() {
     // Grid Siftというタイトル、幅、高さ、リサイズ可能フラグ
     window_ = SDL_CreateWindow("Grid Shift", 800, 600, SDL_WINDOW_RESIZABLE);
     if (!window_) {
-        SDL_Log("ウィンドウを作成できませんでした: %s", SDL_GetError());
+        //SDL_Log("ウィンドウを作成できませんでした: %s", SDL_GetError());
         return false;
     }
 
     // レンダラーを作成
     renderer_ = SDL_CreateRenderer(window_, nullptr);
     if (!renderer_) {
-        SDL_Log("レンダラーを作成できませんでした: %s", SDL_GetError());
+        //SDL_Log("レンダラーを作成できませんでした: %s", SDL_GetError());
         return false;
     }
 
     // テクスチャマネージャーを生成し、必要なテクスチャをロード
     textureManager_ = new TextureManager(renderer_);
-    if (!textureManager_->LoadTexture("assets/player.png", "player") ||
-        !textureManager_->LoadTexture("assets/tiles.png", "tiles") ||
-        !textureManager_->LoadTexture("assets/block.png", "block")) {
-        SDL_Log("テクスチャのロードに失敗しました。");
+    if (!textureManager_->LoadTexture("Image/player.png", "player") ||
+        !textureManager_->LoadTexture("Image/tiles.png", "tiles") ||
+        !textureManager_->LoadTexture("Image/block.png", "block")) {
+        //SDL_Log("テクスチャのロードに失敗しました。");
         return false;
     }
 
     // マップオブジェクトを作成し、CSVファイルからマップデータをロード
     map_ = std::make_unique<Map>(textureManager_->GetTexture("tiles"));
-    if (!map_->LoadMap("assets/map01.csv")) {
-        SDL_Log("マップのロードに失敗しました。");
+    if (!map_->LoadMap("Map/map01.csv")) {
+        //SDL_Log("マップのロードに失敗しました。");
         return false;
     }
 
@@ -94,7 +94,7 @@ void Game::RunLoop() {
     while (isRunning_) {
         ProcessInput(); // 入力イベント処理
         UpdateGame(); // ゲームのロジックと状態を更新
-        GenerateOutput(); // 更新された状態に基づいて画面に描画
+        Render(); // 更新された状態に基づいて画面に描画
     }
 }
 
@@ -135,7 +135,7 @@ void Game::UpdateGame() {
 }
 
 // 画面描画
-void Game::GenerateOutput() {
+void Game::Render() {
     // レンダラーを黒色でクリア
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);

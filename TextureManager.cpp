@@ -8,19 +8,19 @@ TextureManager::TextureManager(SDL_Renderer* renderer)
 {
     // SDL_image の初期化
     // PNG画像をサポートするためのフラグ
-    int imgFlags = IMG_INIT_PNG;
-    if (!(IMG_Init(imgFlags) & imgFlags)) {
+    //int imgFlags = IMG_INIT_PNG;
+    //if (!(IMG_Init(imgFlags) & imgFlags)) {
         //SDL_Log("SDL_image を初期化できませんでした: %s", IMG_GetError());
-    }
-    else {
+    //}
+    //else {
         //SDL_Log("SDL_image が正常に初期化されました。");
-    }
+   // }
 }
 
 // デストラクタ
 TextureManager::~TextureManager() {
     ClearAllTextures(); // 管理している全てのテクスチャを解放
-    IMG_Quit(); // SDL_image の終了処理
+    //IMG_Quit(); // SDL_image の終了処理
     //SDL_Log("TextureManager が破棄され、テクスチャが解放されました。");
 }
 
