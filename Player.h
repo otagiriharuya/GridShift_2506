@@ -47,6 +47,9 @@ private:
 	int mapHP_; // マップの総高さ(ピクセル)
 	Map* map_; // 所属するマップへのポインタ
 
+	int currentGridX_; // プレイヤーが現在いるグリッドのX座標
+	int currentGridY_; // プレイヤーが現在いるグリッドのY座標
+
 	bool isGridMoving_; // グリッド移動アニメーション中かどうかのフラグ
 	float moveProgress_; // 現在のグリッド移動の進行度(0.0f～1.0f)
 	SDL_Point startGridPos_; // グリッド移動開始時のグリッド座標
