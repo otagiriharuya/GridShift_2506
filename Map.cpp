@@ -8,9 +8,7 @@
 
 // コンストラクタ
 Map::Map(SDL_Texture* texture)
-    : tilesetTexture_(texture), // タイルセットのテクスチャを初期化
-    mapCols_(0), // マップの列数を0で初期化
-    mapRows_(0) // マップの行数を0で初期化
+    : tilesetTexture_(texture)
 {}
 
 // デストラクタ

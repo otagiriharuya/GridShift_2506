@@ -30,6 +30,16 @@ void Block::Render(SDL_Renderer* renderer, Camera* camera) {
     SDL_RenderTexture(renderer, texture_, nullptr, &renderRect); // テクスチャを描画
 }
 
+// ブロックの現在のグリッドX座標を取得
+int Block::GetGridX() const { return gridX_; }
+// ブロックの現在のグリッドY座標を取得
+int Block::GetGridY() const { return gridY_; }
+
+// ブロックのピクセル座標（X軸）を取得
+float Block::GetX() const { return destRect_.x; }
+// ブロックのピクセル座標（Y軸）を取得
+float Block::GetY() const { return destRect_.y; }
+
 // ブロックのグリッド座標を設定
 void Block::SetGridPosition(int newGridX, int newGridY) {
     gridX_ = newGridX; // 新しいグリッドX座標を設定

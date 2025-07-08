@@ -24,18 +24,18 @@ public:
     void Render(SDL_Renderer* renderer, Camera* camera);
 
     // ブロックの現在のグリッドX座標を取得
-    int GetGridX() const { return gridX_; }
+    int GetGridX() const;
     // ブロックの現在のグリッドY座標を取得
-    int GetGridY() const { return gridY_; }
+    int GetGridY() const;
 
     // ブロックのグリッド座標を設定
     // ブロックの新しいグリッド座標
     void SetGridPosition(int newGridX, int newGridY);
 
     // ブロックのピクセル座標（X軸）を取得
-    float GetX() const { return destRect_.x; }
+    float GetX() const;
     // ブロックのピクセル座標（Y軸）を取得
-    float GetY() const { return destRect_.y; }
+    float GetY() const;
 
 private:
     SDL_Texture* texture_; // ブロックの描画に使用するテクスチャ
