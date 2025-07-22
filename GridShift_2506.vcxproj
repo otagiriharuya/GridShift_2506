@@ -71,20 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\SDL3-3.2.16\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL3-3.2.18\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL3-3.2.18\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\SDL3-3.2.16\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL3-3.2.18\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL3-3.2.18\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\SDL3-3.2.16\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL3-3.2.18\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL3-3.2.18\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\SDL3-3.2.16\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL3-3.2.16\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL3-3.2.18\include;C:\SDL3_image-3.2.4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL3-3.2.18\lib\x64;C:\SDL3_image-3.2.4\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

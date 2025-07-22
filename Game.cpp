@@ -27,7 +27,7 @@ Game::~Game() {
 bool Game::Initialize() {
     SDL_Log("ゲームの初期化を開始します。");
     // SDLビデオサブシステムの初期化を試みる
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
         SDL_Log("SDLの初期化に失敗しました: %s", SDL_GetError());
         return false;
     }
@@ -85,7 +85,7 @@ bool Game::Initialize() {
     camera_ = std::make_unique<Camera>(0.0f, 0.0f, 800.0f, 600.0f);
 
     // キーボードの状態を取得するポインタを設定
-    keyboardState_ = SDL_GetKeyboardState(&numKeys_);
+    //keyboardState_ = SDL_GetKeyboardState(&numKeys_);
 
     return true;
 }
